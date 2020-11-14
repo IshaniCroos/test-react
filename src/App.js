@@ -1,25 +1,52 @@
-import logo from './logo.svg';
-import './App.css';
+import React, {Component} from "react";
+import { Provider } from "react-redux";
+import {BrowserRouter, Router, Switch, Route, Redirect} from 'react-router-dom';
+import store from "./store";
+import Display from "./components/Display";
+import DistanceCal from "./components/DistanceCal";
+// import Login from './components/Login';
+//import Main from './components/distance';
 
-function App() {
-  return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
-  );
+
+
+class App extends Component {
+
+  render() {
+    return (
+
+      <div>
+
+
+        <BrowserRouter>
+        <div className="container" style={{ maxWidth: "60%", marginTop: 30}}>
+          <Switch>
+            <Route path="/distance" exact name="Distance" render={props => <DistanceCal {...props} />} />
+           <Route path="/display" exact name="Home" render={props => <Display {...props} />} /> 
+          </Switch>
+          </div>
+        </BrowserRouter>
+
+
+
+
+</div>
+
+
+);
+
+
+
+  }
+
+
 }
 
-export default App;
+
+export default () =>
+  <Provider store={store}>
+    <div className="container">
+      <DistanceCal/>
+      {/* <Home /> */}
+    </div>
+    
+  </Provider>;
