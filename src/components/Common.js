@@ -1,14 +1,14 @@
 import React, { Component } from '../../node_modules/react';
 import App from './DistanceCal';
 // import './style.css';
-// import ClosestCountries from './ClosestCountries';
-// import SearchCountry from './SearchCountry';
-// import BetweenTimeZones from './TimeZones';
+import Closest from './Close';
+import Search from './Search';
+import TimeZone from '../components/Timezone';
 
 import { Provider } from '../../node_modules/react-redux';
 import store from "../store";
 
-class MainCarry extends Component {
+class Common extends Component {
 
       constructor(props) {
         super(props);
@@ -38,12 +38,12 @@ class MainCarry extends Component {
         switch(this.state.hasMounted) {
             case 'distanceApp':
                 return <App fullDataResponse={this.state.fullDataResponse} dataResponseHandle={this.dataResponseHandle}/>;
-            // case 'countryZones':
-            //     return <ClosestCountries fullDataResponse={this.state.fullDataResponse} dataResponseHandle={this.dataResponseHandle}/>;
-            // case 'SearchCountry':
-            //     return <SearchCountry fullDataResponse={this.state.fullDataResponse} dataResponseHandle={this.dataResponseHandle}/>;
-            // case 'BetweenTimeZones':
-            //     return <BetweenTimeZones fullDataResponse={this.state.fullDataResponse} dataResponseHandle={this.dataResponseHandle}/>;
+          case 'countryZones':
+            return <Closest fullDataResponse={this.state.fullDataResponse} dataResponseHandle={this.dataResponseHandle} />;
+          case 'SearchCountry':
+            return <Search fullDataResponse={this.state.fullDataResponse} dataResponseHandle={this.dataResponseHandle} />;
+          case 'BetweenTimeZones':
+            return <TimeZone fullDataResponse={this.state.fullDataResponse} dataResponseHandle={this.dataResponseHandle} />;
              default:
                 return <App fullDataResponse={this.state.fullDataResponse} dataResponseHandle={this.dataResponseHandle}/>;
           }
@@ -55,22 +55,50 @@ class MainCarry extends Component {
     return (
         <Provider store={store}>
         <React.StrictMode>
-      <div className='container-fluid big-bg'>
+
+          {/* <div className='container-fluid big-bg'>
             <div className='container-fluid big-bg heightArrange'>
                 <div className="btn-group" role="group" aria-label="...">
-                    <button type="button" onClick={() => this.appSelection('distanceApp')} className="btn btn-default">Location Distances</button>
-                    {/* <button type="button" onClick={() => this.appSelection('countryZones')} className="btn btn-default">Country Zones</button>
-                    <button type="button" onClick={() => this.appSelection('SearchCountry')} className="btn btn-default">Search Country</button>
-                    <button type="button" onClick={() => this.appSelection('BetweenTimeZones')} className="btn btn-default">Countries Between Time Zones</button> */}
+                <button type="button" onClick={() => this.appSelection('distanceApp')} className="btn btn-default">Location Distances</button>
+                <button type="button" onClick={() => this.appSelection('countryZones')} className="btn btn-default">Closest Countries</button>
+                <button type="button" onClick={() => this.appSelection('SearchCountry')} className="btn btn-default">Search Country</button>
+                <button type="button" onClick={() => this.appSelection('BetweenTimeZones')} className="btn btn-default">Countries Between Time Zones</button>
                 </div>
             </div>
             {this.turn()}
 
-      </div>
-      </React.StrictMode>
+      </div> */}
+
+
+    <nav class="navbar navbar-expand-lg navbar-light bg-light " style={{
+                    backgroundColor: "#ddeeff",
+                    align: "center"
+                }}>
+    <button type="button" class="navbar-toggler" data-toggle="collapse" data-target="#navbarCollapse">
+        <span class="navbar-toggler-icon"></span>
+    </button>
+
+    <div class="collapse navbar-collapse" id="navbarCollapse">
+        <div class="navbar-nav">
+        <button type="button" onClick={() => this.appSelection('distanceApp')} className="nav-item nav-link active">Location Distances</button>
+        <button type="button" onClick={() => this.appSelection('countryZones')} className="nav-item nav-link">Closest Countries</button>
+        <button type="button" onClick={() => this.appSelection('SearchCountry')} className="nav-item nav-link">Search Country</button>
+        <button type="button" onClick={() => this.appSelection('BetweenTimeZones')} className="nav-item nav-link">TimeZone</button>
+        </div>
+
+        <br>
+        </br>
+       
+    </div>
+    
+</nav>
+{this.turn()}
+
+          </React.StrictMode>
       </Provider>
+          
     );
   }
 }
 
-export default MainCarry;
+export default Common;

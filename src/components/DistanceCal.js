@@ -98,7 +98,7 @@ class DistanceCal extends Component {
           this.state.DataResponse = data;
           receiveLocations(data).then((fetchedData) => {
             this.state.locations = fetchedData
-            // this.props.dataResponseHandle(data)
+            this.props.dataResponseHandle(data)
           })
           
           return(
@@ -112,36 +112,41 @@ class DistanceCal extends Component {
         }
         
       }
-        
+       
     
 
 
     render() {
         console.log(this.props,"kpopjhhj")
             return(
-            <div className = "container" >
-                <h3 style = {{textalign: "center"}}><span className="badge badge-dark">Calculate Distance Between Two Countries</span></h3>
+                
+            <div className = "container transbox" >
+                <h3 style = {{textAlign: "center"}}><span className="badge badge-primary">Calculate Distance Between Two Countries</span></h3>
                 {this.setupData(this.props.data)}  
 
                       
             <form onSubmit= {(e)=> this.calculateDistance(e)}>
                 <div className="container" style={{
-                    width: "50%",
-                    textAlign: "left"
+                    
+                    textAlign: "center",
+                    color : "darkblue"
                 }}>
-                    <div className="form-group">
-                        <label>Country 1</label>
-                        <input type="text" className="form-control" placeholder="Enter 3 Letter Country Code"
+                    <div className="form-group"  >
+                        <label style = {{textAlign : "center"}}>Country 1 </label>
+                        
+                        <input type="text" style = {{textAlign : "center" , width: "100%"}} className="form-control " placeholder="Enter 3 Letter Country Code"
                                onChange={(e)=>this.country1Change(e)}/>
+                               
+                              
                     </div>
                     <div className="form-group">
                         <label>Country 2</label>
-                        <input type="text" className="form-control" placeholder="Enter 3 Letter Country Code"
+                        <input type="text" style = {{textAlign : "center" , width: "100%"}} className="form-control" placeholder="Enter 3 Letter Country Code"
                                 onChange={(e)=>this.country2Change(e)}/>
                     </div>
                 </div>
-                <div>
-                    <button type= "submit" className= "btn btn-primary" >Calculate
+                <div style = {{textAlign : "center"}}>
+                    <button type= "submit" className= "btn btn-primary" style = {{ top: "50%"}} >Calculate
                     </button>
                 </div>
                 <br/>

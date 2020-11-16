@@ -2,10 +2,10 @@ import React, {Component} from "react";
 import { Provider } from "react-redux";
 import {BrowserRouter, Router, Switch, Route, Redirect} from 'react-router-dom';
 import store from "./store";
-import Display from "./components/Display";
+import Common from './components/Common';
 import DistanceCal from "./components/DistanceCal";
-// import Login from './components/Login';
-//import Main from './components/distance';
+import Login from './components/LoginAuth/Login';
+
 
 
 
@@ -18,10 +18,11 @@ class App extends Component {
 
 
         <BrowserRouter>
-        <div className="container" style={{ maxWidth: "60%", marginTop: 30}}>
+        <div className="container" style={{ maxWidth: "50%", marginTop: 20}}>
           <Switch>
-            <Route path="/distance" exact name="Distance" render={props => <DistanceCal {...props} />} />
-           <Route path="/display" exact name="Home" render={props => <Display {...props} />} /> 
+            <Route path="/" exact name="Distance" render={props => <Login {...props} />} />
+           <Route path="/app" exact name="App" render={props => <Common {...props} />} /> 
+           
           </Switch>
           </div>
         </BrowserRouter>
@@ -42,11 +43,14 @@ class App extends Component {
 }
 
 
-export default () =>
-  <Provider store={store}>
-    <div className="container">
-      <DistanceCal/>
-      {/* <Home /> */}
-    </div>
+// export default () =>
+//   <Provider store={store}>
+//     <div className="container">
+//       <DistanceCal/>
+      
+//       {/* <Home /> */}
+//     </div>
     
-  </Provider>;
+//   </Provider>;
+
+export default App;
