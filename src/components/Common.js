@@ -56,19 +56,7 @@ class Common extends Component {
         <Provider store={store}>
         <React.StrictMode>
 
-          {/* <div className='container-fluid big-bg'>
-            <div className='container-fluid big-bg heightArrange'>
-                <div className="btn-group" role="group" aria-label="...">
-                <button type="button" onClick={() => this.appSelection('distanceApp')} className="btn btn-default">Location Distances</button>
-                <button type="button" onClick={() => this.appSelection('countryZones')} className="btn btn-default">Closest Countries</button>
-                <button type="button" onClick={() => this.appSelection('SearchCountry')} className="btn btn-default">Search Country</button>
-                <button type="button" onClick={() => this.appSelection('BetweenTimeZones')} className="btn btn-default">Countries Between Time Zones</button>
-                </div>
-            </div>
-            {this.turn()}
-
-      </div> */}
-
+          
 
     <nav class="navbar navbar-expand-lg navbar-light bg-light " style={{
                     backgroundColor: "#ddeeff",
