@@ -4,6 +4,8 @@ import {requestApiData} from '../actions';
 import {connect} from 'react-redux';
 import {countriesSearch} from '../Helpers/helperFunctions';
 import './style.css';
+import * as Yup from "yup";
+import {ErrorMessage, Field, Form, Formik} from "formik";
 
 
 class Search extends Component {
@@ -16,77 +18,24 @@ class Search extends Component {
             search: '',
             inputCountry: '',
             filteredCountries: [],
-            // msg : 'Enter the country you want to search',
-            // closestData: []
+            
         };
     }
 
-    // asyncStateManagement(value){
-    //     return(new Promise((resolve, reject)=>{
-    //         this.setState(value)
-    //         resolve(true)
-    //     }))
-    // }
-
-    // closestCountries(e){
-    //     e.preventDefault();
-    //     let closestData = this.state.locations.map((data)=>{
-    //         if(data[0].trim().toLowerCase().indexOf(this.state.inputCountry.trim().toLocaleLowerCase())> -1) {
-
-    //             return data[0].trim()
-    //         }
-    //         return undefined
-    //     })
-
-    //     let filter = [];
-    //     for(let x = 0; x<closestData.length; x++){
-
-    //         if(closestData[x] !== undefined){
-    //             filter.push(closestData[x])
-
-    //         }
-
-    //     }
-    //     this.setState({closestData : filter})
-
-
-
-    // }
+    
 
     changeOfCountry = (e) =>{
         this.setState({search: e.target.value});
     }
 
     searchOnClick(search){
-        if(!search){
-            return alert("Please Enter Search Keyword");
-        }
+        
         const result = countriesSearch(search);
 
         this.setState({filteredCountries: result});
     }
 
-    // componentDidMount(){
-    //     let closestData = this.props.fullDataResponse.map((data)=>{
-    //         let c =[data.name]
-    //         return c
-    //     })
-    //     this.setState({locations: closestData})
-    // }
-
-    // showMsg(){
-    //     let message = [];
-    //     for(let x = 0; x<this.state.locations.length; x++){
-
-    //         if(this.state.closestData[x] !== undefined){
-    //         message.push(<li className="list-group-item" key={x}> {this.state.closestData[x]}</li>)
-
-    //         }
-
-    //     }
-    //     return (message)
-    // }
-
+    
     render(){
         return(
 
@@ -95,19 +44,39 @@ class Search extends Component {
 
         {/* <h1 className="badgeDistance">{this.state.message}</h1> */}
 
-        <form onSubmit={(e) => this.searchOnClick(this.state.search)} >
+        <Formik
+                    initialValues={{
+                        country1: ''
+                    }}
+                    validationSchema={Yup.object().shape({
+                        country1: Yup.string()
+                            .required('Country is required')
+                    })}
+                    onSubmit={fields => {
+                        try {
+                            this.searchOnClick(fields.country1);
+                        } catch (e) {
+                            alert("Invalid Country Code");
+                        }
+                    }}
+                >
+ {({ errors, touched }) => (
+        <Form>
             <div className="container" style={{
                     width: "50%",
                     textAlign: "center"
                 }}>
           <div className="form-group">
             <label htmlFor="country1" style = {{textAlign : "center", color: "darkblue"}}>Country name</label>
-            <input type="text"
+            {/* <input type="text"
              onChange={(e) => {this.changeOfCountry(e)}}
               style = {{textAlign : "center" , width: "100%"}} 
               className="form-control "
               
-               id="country" aria-describedby="country" placeholder="Enter the Country Name " />
+               id="country" aria-describedby="country" placeholder="Enter the Country Name " /> */}
+
+          <Field name="country1" type="text" placeholder="Enter name" className={'form-control' + (errors.country1 && touched.country1 ? ' is-invalid' : '')} />
+          <ErrorMessage name="country1" component="div" className="invalid-feedback" />
             <small id="emailHelp" className="form-text text-muted">Look for the country name you want to Search </small>
           </div>
           </div>
@@ -117,7 +86,12 @@ class Search extends Component {
            style = {{ top: "50%"}}
            >Search</button>
           </div>
-        </form>
+
+          </Form>
+
+)}
+
+</Formik>
 
         <div className= "col text-center">
             {this.state.filteredCountries.length >1 ? (

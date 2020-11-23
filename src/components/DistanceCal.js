@@ -1,22 +1,10 @@
 import React, { Component } from 'react'
-import { requestApiData, locationData } from "../actions";
+import { requestApiData } from "../actions";
 import { bindActionCreators } from "redux";
 import { connect } from "react-redux";
-import {dataResponseHandle} from './Common';
-
-
-const receiveLocations = (reqData) => {
-    return (new Promise(async (resolve, reject) => {
-
-        let posData;
-        console.log(reqData)
-        posData = reqData.map((data) => {
-            let countryData = [data.latlng, data.cioc]
-            return countryData;
-        })
-        resolve(posData)
-    }))
-}
+import {findDistance} from '../Helpers/helperFunctions';
+import * as Yup from 'yup';
+import { Formik, Field, Form, ErrorMessage } from 'formik';
 
 
 class DistanceCal extends Component {
@@ -26,106 +14,82 @@ class DistanceCal extends Component {
         this.props.requestApiData()
 
         this.state = {
-            DataResponse: [],
-            locations: [],
-            country1Input: "",
-            country2Input: "",
-            betweenDistance: '',
-            newGuy: []
+            
+            country1Name: "",
+            country2Name: "",
+            distance: 0
+            
         };
     };
 
 
-    componentDidMount() {
-        this.props.requestApiData();
-    };
-
     country1Change = (e) => {
-        this.setState({ country1Input: e.target.value });
+        this.setState({ country1Name: e.target.value });
     };
 
     country2Change = (e) => {
-        this.setState({ country2Input: e.target.value });
+        this.setState({ country2Name: e.target.value });
     };
 
-    calculateDistance = (e) => {
-        e.preventDefault()
+    calculateDistance (country1,country2)  {
 
-        console.log(this.state.locations, "hkhkh")
+        if (country1 == country2){
+            return alert(" Please Enter Different Countries");
 
-        let lat1, lon1, lat2, lon2 = '';
-        this.state.locations.map((data) => {
-            if (data[1] !== null) {
-                if (data[1].trim() === this.state.country1Input.trim()) {
-                    lat1 = data[0][0]
-                    lon1 = data[0][1]
-                }
-            }
-
-            if (data[1] !== null) {
-                if (data[1].trim() === this.state.country2Input.trim()) {
-                    lat2 = data[0][0]
-                    lon2 = data[0][1]
-                }
-            }
-            return null
-
-        })
-
-        if ((lat1 !== '') && (lon1 !== '') && (lat2 !== '') && (lon2 !== '')){
-            var R = 6371; // Radius of the earth in km
-            var dLat = (lat2-lat1) * (Math.PI/180);  // deg2rad below
-            var dLon = (lon2-lon1) * (Math.PI/180); 
-            var a = Math.sin(dLat/2) * Math.sin(dLat/2) +
-                    Math.cos(lat1 * (Math.PI/180)) * Math.cos(lat2 * (Math.PI/180)) * 
-                    Math.sin(dLon/2) * Math.sin(dLon/2)
-              ; 
-            var c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a)); 
-            var d = R * c; // Distance in km
-            this.setState({betweenDistance : d.toFixed(2) + 'KM'});
-            return d;
-          }else{
-            console.log('invalid input')
-            return false
-          }
-
-    }
-
-    setupData(data) {
-        if (data.length > 0) {
-          console.log(data,"hjhj")
-          //this.setState({ fullDataResponce : data })
-          this.state.DataResponse = data;
-          receiveLocations(data).then((fetchedData) => {
-            this.state.locations = fetchedData
-            this.props.dataResponseHandle(data)
-          })
-          
-          return(
-               console.log("loaded")
-          )
-        }else{
-          console.log(data,"hhhhhh")
-          return(
-            <h1>Loading...</h1>
-          )
         }
         
-      }
-       
-    
+        const result = findDistance(country1, country2);
+
+        this.setState({
+
+            distance: result.distance,
+            country1Name: result.country1Name,
+            country2Name: result.country2Name
+
+        });
+    }
+  
 
 
     render() {
-        console.log(this.props,"kpopjhhj")
+       
             return(
                 
             <div className = "container transbox" >
                 <h3 style = {{textAlign: "center"}}><span className="badge badge-primary">Calculate Distance Between Two Countries</span></h3>
-                {this.setupData(this.props.data)}  
+                <Formik
+                    initialValues={{
+                        country1: '',
+                        country2: ''
+                    }}
+                    validationSchema={Yup.object().shape({
+                        country1: Yup.string()
+                            .max(3, 'Must be exactly 3 characters')
+                            .min(3, 'Must be exactly 3 characters')
+                            .required('Country 1 is required'),
+                        country2: Yup.string()
+                            .max(3, 'Must be exactly 3 characters')
+                            .min(3, 'Must be exactly 3 characters')
+                            .notOneOf([Yup.ref('country1'), null], 'Countries must different')
+                            .required('Country 2 is required')
+                    })}
+                    onSubmit={fields => {
+                        try {
+                            this.calculateDistance(fields.country1.toUpperCase(), fields.country2.toUpperCase());
+                        } catch (e) {
+                            alert("Invalid Country Code");
+                            this.setState({
+                                distance: "",
+                                country1Name:"",
+                                country2Name:""
+                            });
+                        }
+                    }}
+                    >
 
+              {({ errors, touched }) => (
                       
-            <form onSubmit= {(e)=> this.calculateDistance(e)}>
+            <Form>
                 <div className="container" style={{
                     
                     textAlign: "center",
@@ -133,64 +97,77 @@ class DistanceCal extends Component {
                 }}>
                     <div className="form-group"  >
                         <label style = {{textAlign : "center"}}>Country 1 </label>
+
+                        <Field name="country1" type="text" placeholder="Enter 3 Letter Country Code" className={'form-control' + (errors.country1 && touched.country1 ? ' is-invalid' : '')} />
+                        <ErrorMessage name="country1" component="div" className="invalid-feedback" />
                         
-                        <input type="text" style = {{textAlign : "center" , width: "100%"}} className="form-control " placeholder="Enter 3 Letter Country Code"
-                               onChange={(e)=>this.country1Change(e)}/>
+                        {/* <input type="text" style = {{textAlign : "center" , width: "100%"}} className="form-control " placeholder="Enter 3 Letter Country Code"
+                               onChange={(e)=>this.country1Change(e)}/> */}
                                
                               
                     </div>
                     <div className="form-group">
                         <label>Country 2</label>
-                        <input type="text" style = {{textAlign : "center" , width: "100%"}} className="form-control" placeholder="Enter 3 Letter Country Code"
-                                onChange={(e)=>this.country2Change(e)}/>
+
+                        <Field name="country2" type="text" placeholder="Enter 3 Letter Country Code" className={'form-control' + (errors.country2 && touched.country2 ? ' is-invalid' : '')} />
+                        <ErrorMessage name="country2" component="div" className="invalid-feedback" />
+                        {/* <input type="text" style = {{textAlign : "center" , width: "100%"}} className="form-control" placeholder="Enter 3 Letter Country Code"
+                                onChange={(e)=>this.country2Change(e)}/> */}
                     </div>
                 </div>
-                <div style = {{textAlign : "center"}}>
+
+                <div className="form-group">
+                                <button type="submit" className="btn btn-primary btn-lg mr-2">Calculate</button>
+                                <button type="reset" className="btn btn-secondary btn-lg">Clear</button>
+                            </div>
+                {/* <div style = {{textAlign : "center"}}>
                     <button type= "submit" className= "btn btn-primary" style = {{ top: "50%"}} >Calculate
                     </button>
-                </div>
+                </div> */}
                 <br/>
 
-                <h1 className="badgeDistance">{this.state.betweenDistance}</h1>
+                {/* <h1 className="badgeDistance">{this.state.betweenDistance}</h1> */}
+
+
+               
+                    <div className="col text-center">
+                        {this.state.distance ? (
+                            <h2 style = {{textAlign :"center"}}><span
+                                className="badge badge-success">Distance between {this.state.country1Name} and {this.state.country2Name} : {
+                                this.state.distance} KMs</span></h2>
+                        ) : (
+                            <br/>
+                        )}
+                    </div>
+                
+
+
                 
                
-            </form>
+            </Form>
+
+)}
+
+</Formik>
+
+
+
+
             </div>
         );
     }
 }
 
 
+function matchDispatchToProps(dispatch) {
+    return bindActionCreators(
+        {
+            requestApiData,
+        },
+        dispatch
+    )
+}
+
+export default connect(null,matchDispatchToProps)(DistanceCal);
 
 
-
-
-
-// function mapStateToProps(state) {
-//     return {
-
-//         data: state.data
-//     }
-// }
-
-// function mapDispatchToProps(dispatch) {
-//     return bindActionCreators(
-//         {
-//             locationData: state.
-//             requestApiData,
-//         },
-//         dispatch
-//     )
-// }
-const mapStateToProps = state => ({ 
-    data : state.data,
-    locationData : state.data,
-  });
-
-const mapDispatchToProps = disatch => 
-  bindActionCreators({  locationData: locationData,
-    requestApiData: requestApiData, }, disatch)
-
-DistanceCal = connect(mapStateToProps, mapDispatchToProps)(DistanceCal);
-
-export default DistanceCal;

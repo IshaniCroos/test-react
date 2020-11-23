@@ -4,6 +4,9 @@ import {requestApiData} from '../actions';
 import {connect} from 'react-redux';
 import {findTimezones} from '../Helpers/helperFunctions';
 import "./style.css"
+import * as Yup from 'yup';
+import { Formik, Field, Form, ErrorMessage } from 'formik';
+
 
 
 class TimeZone extends Component {
@@ -13,104 +16,32 @@ class TimeZone extends Component {
         this.props.requestApiData();
          
         this.state = {
-              //locations: [],
+              
               country1Input: 0,
               country2Input: 0,
-             // message: 'What country do you want search?',
               filteredCountries : 0
 
         };
       };
 
-      // asyncStateManagement(value){
-      //   return(new Promise((resolve,reject) => {
-      //       this.setState(value)
-      //       resolve(true)
-      //   }))
-      // }
+    
 
-    closeCountries(e){
-        e.preventDefault();
-        let closestData = this.state.locations.map((data) => {
-            let max = Math.max(this.state.country1Input, this.state.country2Input)
-            let min = Math.min(this.state.country1Input, this.state.country2Input)
 
-            if ((Math.max(data[1],max) === max) && (Math.min(data[1],min) === min)){
-                return data[0].trim()
-            }
-            
-            return null
-        })
 
-        let filtered = [];
-        for (let i = 0; i<closestData.length; i++){
-            if (closestData[i] !== undefined){
-                filtered.push(closestData[i])
-            }
-            
-        }
-        this.setState({ closestData : filtered })
+    findTimezoneOnClick(timeZone1, timeZone2){
 
-    }
-
-    countryZone1Change = event => {
-        this.setState ({country1Input: event.target.value})
-        
-    }
-
-    countryZone2Change = event => {
-        this.setState ({country2Input: event.target.value})
-        
-    }
-
-    findTimezoneOnClick(country1Input, country2Input){
-
-      if((country1Input-country2Input)==0){
+      if((timeZone1-timeZone2)==0){
         return alert ("Please Enter Valid Timezones!");
       }
 
-      const result = findTimezones(country1Input, country2Input);
+      const result = findTimezones(timeZone1, timeZone2);
 
       this.setState({
         filteredCountries: result
       });
 
-
-
-
     }
 
-    // componentDidMount() {
-
-    //     let closestData = []
-    //     this.props.fullDataResponse.map((data) => {
-    //          (data.timezones.map((td) => {
-    //             let hold = td.replace(':','.')
-    //             hold = parseFloat(hold.replace('UTC',''))
-    //             let c = [data.name,hold]
-    //             closestData.push(c)
-    //             return null
-    //         }))
-
-    //         return undefined
-            
-    //       })
-
-    //     this.setState({ locations : closestData })
-        
-    // }
-
-    // displayMessage() {
-    //     let ret = []
-    //     for (let i = 0; i<this.state.locations.length; i++ ){
-    //         if(this.state.closestData[i] !== undefined){
-    //             ret.push(<li className="list-group-item" key={i}>{this.state.closestData[i]}</li>)
-    //         }
-            
-    //     }
-    //     return (ret)
-        
-    // }
 
   render() {
     return (
@@ -120,14 +51,48 @@ class TimeZone extends Component {
         color : "darkblue"
     }}>
 
+        <Formik
+                    initialValues={{
+                        timeZone1: '',
+                        timeZone2: ''
+                    }}
+                    validationSchema={Yup.object().shape({
+                        timeZone1: Yup.number()
+                            .moreThan(-14, 'Timezone must be -13 or more')
+                            .lessThan(14, 'Timezone must be 13 or less')
+                            .required('Start Timezone is required'),
+                        timeZone2: Yup.number()
+                            .moreThan(-14, 'Timezone must be -13 or more')
+                            .lessThan(14, 'Timezone must be 13 or less')
+                            .notOneOf([Yup.ref('timeZone1'), null], 'Timezones must different')
+                            .required('End Timezone is required')
+                    })}
+                    onSubmit={fields => {
+                        try {
+                            this.findTimezoneOnClick(parseFloat(fields.timeZone1),parseFloat(fields.timeZone2));
+                        } catch (e) {
+                            alert("Invalid Timezone");
+                            this.setState({
+                                distance: "",
+                                timeZone1Name:"",
+                                timeZone2Name:""
+                            });
+                        }
+                    }}
+                >
+
         <h3 style = {{textAlign: "center", color: "lightskyblue"}}><span className="badge badge-primary">Countries between Time Zones</span></h3>
 
-        <form onSubmit={(e) => this.findTimezoneOnClick(parseFloat(this.state.country1Input), parseFloat(this.state.country2Input))} >
+
+        {({ errors, touched }) => (
+        <Form>
           <div className="form-group">
             <label htmlFor="country1">First TimeZone</label>            
             <div className="input-group input-group-lg fontSize" style={{margin:'0px 0px 10px 0px'}}>
                 <span className="input-group-addon fontSize" id="sizing-addon1" >UTC</span>
-                <input type="number" onChange={(e) => {this.countryZone1Change(e)}} value= {this.state.country1Input} className="form-control " placeholder="Timezone 1" aria-describedby="sizing-addon1"/>
+                <Field name="timeZone1" type="number" className={'form-control' + (errors.timeZone1 && touched.timeZone1 ? ' is-invalid' : '')} />
+                <ErrorMessage name="timeZone1" component="div" className="invalid-feedback" />
+                {/* <input type="number" onChange={(e) => {this.countryZone1Change(e)}} value= {this.state.country1Input} className="form-control " placeholder="Timezone 1" aria-describedby="sizing-addon1"/> */}
             </div>
 
             <small id="emailHelp" className="form-text text-muted">Put 2 Country Zone Ranges where you want to find the existing countries between the given ranges.</small>
@@ -135,13 +100,21 @@ class TimeZone extends Component {
           <label htmlFor="basic-url">Second TimeZone</label>
             <div className="input-group input-group-lg fontSize" style={{margin:'0px 0px 5px 0px'}}>
                 <span className="input-group-addon fontSize" id="sizing-addon1">UTC</span>
-                <input type="number" onChange={(e) => {this.countryZone2Change(e)}} value= {this.state.country2Input} className="form-control " placeholder="Timezone 2" aria-describedby="sizing-addon1"/>
+
+                <Field name="timeZone2" type="number" className={'form-control' + (errors.timeZone2 && touched.timeZone2 ? ' is-invalid' : '')} />
+                <ErrorMessage name="timeZone2" component="div" className="invalid-feedback" />
+                {/* <input type="number" onChange={(e) => {this.countryZone2Change(e)}} value= {this.state.country2Input} className="form-control " placeholder="Timezone 2" aria-describedby="sizing-addon1"/> */}
             </div>
 
             
           <button type="submit" className="btn btn-primary">Search</button>
-        </form>
+          </Form>
 
+)}
+
+</Formik>
+
+<div className="container" style={{maxWidth: "500px", minWidth: "350px"}}>
         <div className= "col text-center">
           {this.state.filteredCountries ? (
             <ul className= "list-group">
@@ -159,15 +132,9 @@ class TimeZone extends Component {
             <br/>
           )}
 
-        </div>
-
-
-
-        {/* <ul >
-            {this.displayMessage()}
-        </ul> */}
-
+         </div>
       </div>
+    </div>
     );
   }
 }

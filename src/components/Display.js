@@ -11,43 +11,43 @@ class Display extends Component {
     };
 
     createListItems() {
-        return this.props.allCountries.map((country)=>{
+        return this.props.data.map((country)=>{
             return(
-            <li key={country.name} onClick={()=>this.props.receiveApiData(country)}>{country.name} - {country.alpha3Code}</li>
+            <li className="list-group-item" key={country.name} >{country.name} - {country.alpha3Code} - {country.timezones}</li>
             )
         })
     };
 
     render() {
-        if(!this.props.allCountries){
-            return(
-                <button onClick={ () => this.props.requestApiData() } >Fetch Countries </button>
-            )
-        }
-        return (
-            <div>
-                <CountryDistance allCountries={this.props.allCountries} /> 
-                <h2>Countries List</h2>
-                {this.createListItems()}
+        return this.props.data.length ?
+            <div className="container" style={{
+                width: "90%"
+            }}>
+                <h3 style={{textAlign :"center" , color: "darkblue"}}><span className="badge badge-dark">Countries List</span></h3>
+
+                <ul className="list-group">
+                    {this.createListItems()}
+                </ul>
             </div>
-        );
+            : <h1>loading...</h1>;
     }
 }
 
 function mapStateToProps(state) {
     return{
-        allCountries:state.allCountries
+        data: state.data
     }
 }
 
 function matchDispatchToProps(dispatch) {
     return bindActionCreators(
         {
-            receiveApiData: receiveApiData,
-            requestApiData: requestApiData
+            requestApiData
         },
         dispatch
     )
 }
 
 export default connect(mapStateToProps,matchDispatchToProps)(Display);
+
+
